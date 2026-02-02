@@ -1,8 +1,9 @@
 # image blur/deblur
 
 ## What it does
-Go program that loads an image, converts it to grayscale, pads it to the next power-of-2, runs a 2D FFT, then:
-- **blur**: multiplies the image spectrum by a Gaussian kernel spectrum (convolution in frequency domain)
+Go program that loads an image, converts it to grayscale, pads it to the next power of 2, runs a 2D FFT, then:
+
+- **blur**: multiplies the image spectrum by a Gaussian kernel spectrum (convolution via the frequency domain)
 - **deblur**: applies a **Wiener filter** in the frequency domain
 
 ## Requirements
@@ -10,7 +11,7 @@ Go program that loads an image, converts it to grayscale, pads it to the next po
 - Input image can be PNG/JPEG
 
 ## Run server
-From the directory containing your `.go` file, type:
+From the directory containing your `.go` files, run:
 
 ```bash
 go run main.go -in blurred.jpeg -out unblurred.png -action deblur -sigma 5 -k 0.0001
@@ -18,39 +19,33 @@ go run cmd/server.go
 ```
 
 ## Run client
-From the directory containing your `.go` file, type:
+From the directory containing your `.go` files, run:
 
-**Blur: (example, you can change the names of the png files and the values of k and sigma)**
+### Blur (example)
+You can change file names and the `sigma`/`k` values:
+
 ```bash
-go run cmd/client.go -in "test.jpg" -out "flou.png" -action blur -sigma 10.0
+go run cmd/client.go -in test.jpg -out blurred.png -action blur -sigma 10.0
 ```
 
-**Deblur:**
+### Deblur
 ```bash
-go run cmd/client.go -in "flou.png" -out "net.png" -action deblur -sigma 10.0 -k 0.005
+go run cmd/client.go -in blurred.png -out sharp.png -action deblur -sigma 10.0 -k 0.005
 ```
 
-## Résumé technique des paramètres (en français)
-Pour t'aider à choisir les bonnes valeurs lors de tes tests d'algorithmes (ce qui fait partie de l'évaluation de performance) :
+## Parameters
+This is to help you choose good values during your algorithm tests.
 
-# -action :
+### `-action`
+- `blur`: applies a convolution (gaussian blur).
+- `deblur`: applies the Wiener filter (attempts to invert the blur).
 
-blur : Applique une Convolution (flou gaussien).
+### `-sigma` (radius)
+- The larger it is, the wider/stronger the blur.
+- For deblurring to work well, you ideally want to use the same `sigma` that caused the blur.
 
-deblur : Applique le filtre de Wiener (tentative d'inversion du flou).
+### `-k` (noise factor for Wiener)
+A stabilizing constant that prevents division issues when some frequencies are very small
 
-# -sigma (Rayon) :
-
-Plus il est grand, plus le flou est large.
-
-Pour que le deblur fonctionne, tu dois idéalement utiliser le même sigma que celui qui a causé le flou.
-
-# -k (Facteur de bruit pour Wiener) :
-
-C'est une valeur pour éviter la division par zéro dans les fréquences faibles.
-
-Trop petit (ex: 0.00001) : L'image sera très nette mais avec beaucoup de "bruit" (artefacts, grains).
-
-Trop grand (ex: 0.1) : L'image restera floue, mais le bruit sera lissé.
-
-Valeur typique : 0.001 à 0.01.
+- Too small (e.g. `0.00001`): sharper result, but lots of noise/artifacts/grain.
+- Too large (e.g. `0.1`): less noise, but the image stays blurry.
