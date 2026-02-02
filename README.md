@@ -9,42 +9,48 @@ Go program that loads an image, converts it to grayscale, pads it to the next po
 - Go
 - Input image can be PNG/JPEG
 
-## Run
+## Run server
 From the directory containing your `.go` file, type:
 
 ```bash
 go run main.go -in blurred.jpeg -out unblurred.png -action deblur -sigma 5 -k 0.0001
+go run cmd/server.go
 ```
 
-### Common examples
-**Blur:**
+## Run client
+From the directory containing your `.go` file, type:
+
+**Blur: (example, you can change the names of the png files and the values of k and sigma)**
 ```bash
-go run main.go -in input.png -out blurred.png -action blur -sigma 3
+go run cmd/client.go -in "test.jpg" -out "flou.png" -action blur -sigma 10.0
 ```
 
 **Deblur:**
 ```bash
-go run main.go -in blurred.png -out restored.png -action deblur -sigma 5 -k 0.0001
+go run cmd/client.go -in "flou.png" -out "net.png" -action deblur -sigma 10.0 -k 0.005
 ```
 
-In the frequency domain, a blurred image is commonly modeled as:
+## Résumé technique des paramètres (en français)
+Pour t'aider à choisir les bonnes valeurs lors de tes tests d'algorithmes (ce qui fait partie de l'évaluation de performance) :
 
-$$
-G = F \cdot H + N
-$$
+# -action :
 
-where:
+blur : Applique une Convolution (flou gaussien).
 
-- **$F$**: unknown sharp image  
-- **$H$**: impulse response (gaussian kernel)  
-- **$N$**: noise  
-- **$G$**: observed blurred image
+deblur : Applique le filtre de Wiener (tentative d'inversion du flou).
 
-A simplified Wiener filter uses:
+# -sigma (Rayon) :
 
-$$
-\hat{F} = \frac{G \cdot \overline{H}}{|H|^2 + K}
-$$
+Plus il est grand, plus le flou est large.
 
-where **$K$** is the regularization term (related to the noise/signal ratio). Larger $K$ reduces noise amplification but increases **smoothing** (fewer recovered details).
+Pour que le deblur fonctionne, tu dois idéalement utiliser le même sigma que celui qui a causé le flou.
 
+# -k (Facteur de bruit pour Wiener) :
+
+C'est une valeur pour éviter la division par zéro dans les fréquences faibles.
+
+Trop petit (ex: 0.00001) : L'image sera très nette mais avec beaucoup de "bruit" (artefacts, grains).
+
+Trop grand (ex: 0.1) : L'image restera floue, mais le bruit sera lissé.
+
+Valeur typique : 0.001 à 0.01.
