@@ -11,10 +11,9 @@ Go program that loads an image, converts it to grayscale, pads it to the next po
 - Input image can be PNG/JPEG
 
 ## Run server
-From the directory containing your `.go` files, run:
+From the directory containing your `go.mod` files, run:
 
 ```bash
-go run main.go -in blurred.jpeg -out unblurred.png -action deblur -sigma 5 -k 0.0001
 go run cmd/server.go
 ```
 
